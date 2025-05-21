@@ -81,7 +81,7 @@ def chat():
 def logout():
     session.clear()
     return redirect(url_for("login"))
-@app.route("/usage")
+
 @app.route("/usage")
 def usage():
     if "username" not in session:
