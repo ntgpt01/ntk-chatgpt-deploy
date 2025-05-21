@@ -5,9 +5,10 @@
 <h2>Lịch sử sử dụng GPT</h2>
 
 <!-- Nút tải CSV -->
-<a href="{{ url_for('download_log') }}" class="btn">📥 Tải file CSV</a>
+
 
 <div class="table-wrapper">
+    <a href="{{ url_for('download_log') }}" class="btn">📥 Tải file CSV</a>
     <table>
         <thead>
             <tr>
@@ -17,7 +18,8 @@
                 <th>Trả lời</th>
                 <th>Total tokens</th>
                 <th>Prompt</th>
-                <th>Completion</th>
+                <th>Câu trả lời<br>Completion</th>
+
             </tr>
         </thead>
         <tbody>
