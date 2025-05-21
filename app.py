@@ -82,6 +82,7 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 @app.route("/usage")
+@app.route("/usage")
 def usage():
     if "username" not in session:
         return redirect(url_for("login"))
@@ -92,6 +93,8 @@ def usage():
             reader = csv.reader(f)
             headers = next(reader)  # bỏ dòng tiêu đề
             for row in reader:
+                if not row or row[0].startswith("#"):
+                    continue  # bỏ qua dòng comment / rỗng
                 rows.append(row)
     except FileNotFoundError:
         rows = []
