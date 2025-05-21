@@ -3,16 +3,15 @@ from users import users
 import openai
 import csv
 from datetime import datetime
-import webbrowser
-import time
+import os
 
 app = Flask(__name__)
 app.secret_key = "supersecret"  # Bắt buộc để dùng session
 
-import os
+# Dùng biến môi trường thay vì hardcode API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Trang đăng nhập
+
 @app.route("/", methods=["GET", "POST"])
 def login():
     error = None
@@ -32,7 +31,6 @@ def login():
     return render_template("login.html", error=error)
 
 
-# Trang chat (chỉ vào nếu đã login)
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
     if "username" not in session:
@@ -61,7 +59,7 @@ def chat():
             prompt_tokens = usage.prompt_tokens
             completion_tokens = usage.completion_tokens
 
-            # Ghi log
+            # Ghi log ra CSV
             with open("usage_log.csv", "a", encoding="utf-8", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow([
@@ -76,11 +74,6 @@ def chat():
 
     return render_template("chat.html", username=username, prompt=prompt, response=response_text)
 
-# Đăng xuất
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("login"))
 
 @app.route("/usage")
 def usage():
@@ -91,18 +84,22 @@ def usage():
     try:
         with open("usage_log.csv", newline="", encoding="utf-8") as f:
             reader = csv.reader(f)
-            headers = next(reader)  # bỏ dòng tiêu đề
+            headers = next(reader)  # Bỏ dòng tiêu đề
             for row in reader:
                 if not row or row[0].startswith("#"):
-                    continue  # bỏ qua dòng comment / rỗng
+                    continue  # Bỏ qua dòng comment
                 rows.append(row)
     except FileNotFoundError:
         rows = []
 
     return render_template("usage.html", rows=rows)
 
-if __name__ == "__main__":
-    time.sleep(1)
-    webbrowser.open("http://127.0.0.1:5000")
-    app.run(debug=True, host="0.0.0.0", port=10000)
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=10000)
