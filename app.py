@@ -87,3 +87,19 @@ if __name__ == "__main__":
     webbrowser.open("http://127.0.0.1:5000")
     app.run(debug=True, host="0.0.0.0", port=10000)
 
+@app.route("/usage")
+def usage():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    rows = []
+    try:
+        with open("usage_log.csv", newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            headers = next(reader)  # bỏ dòng tiêu đề
+            for row in reader:
+                rows.append(row)
+    except FileNotFoundError:
+        rows = []
+
+    return render_template("usage.html", rows=rows)

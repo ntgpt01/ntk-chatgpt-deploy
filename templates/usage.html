@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Lịch sử sử dụng{% endblock %}
+
+{% block content %}
+<h2>Lịch sử sử dụng GPT</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Thời gian</th>
+            <th>User</th>
+            <th>Câu hỏi</th>
+            <th>Trả lời</th>
+            <th>Total tokens</th>
+            <th>Prompt</th>
+            <th>Completion</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+            <td>{{ row[4] }}</td>
+            <td>{{ row[5] }}</td>
+            <td>{{ row[6] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
