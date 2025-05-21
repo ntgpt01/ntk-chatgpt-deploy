@@ -1,3 +1,4 @@
+/* RESET + CƠ BẢN */
 * {
     box-sizing: border-box;
 }
@@ -10,6 +11,7 @@ body {
     color: #333;
 }
 
+/* THANH NAVBAR */
 .navbar {
     background-color: #0052cc;
     color: white;
@@ -24,6 +26,7 @@ body {
     font-weight: bold;
 }
 
+/* KHUNG CHÍNH */
 .container {
     max-width: 700px;
     margin: 30px auto;
@@ -33,11 +36,13 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+/* TIÊU ĐỀ */
 h2, h3 {
     color: #0052cc;
     margin-top: 0;
 }
 
+/* FORM INPUT */
 input[type="text"],
 input[type="password"],
 textarea {
@@ -53,6 +58,7 @@ textarea {
     resize: vertical;
 }
 
+/* NÚT GỬI */
 button {
     padding: 12px 25px;
     background-color: #0052cc;
@@ -68,6 +74,22 @@ button:hover {
     background-color: #003d99;
 }
 
+/* NÚT LIÊN KẾT (CSV...) */
+a.btn {
+    display: inline-block;
+    margin: 10px 0;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+a.btn:hover {
+    background-color: #0056b3;
+}
+
+/* FOOTER */
 footer {
     text-align: center;
     padding: 20px;
@@ -75,6 +97,8 @@ footer {
     color: #777;
     margin-top: 50px;
 }
+
+/* BẢNG LOG SỬ DỤNG */
 table {
     border-collapse: collapse;
     width: 100%;
@@ -94,8 +118,47 @@ th {
     background-color: #f2f2f2;
 }
 
+/* CỘT CÂU HỎI / TRẢ LỜI */
 td:nth-child(3), td:nth-child(4) {
     max-width: 300px;
     white-space: pre-wrap;
 }
 
+/* RESPONSIVE: TỰ XUỐNG DÒNG TRÊN ĐIỆN THOẠI */
+@media screen and (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead tr {
+        display: none;
+    }
+
+    tr {
+        margin-bottom: 1rem;
+    }
+
+    td {
+        position: relative;
+        padding-left: 50%;
+    }
+
+    td::before {
+        position: absolute;
+        top: 8px;
+        left: 10px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+        color: #555;
+    }
+
+    td:nth-child(1)::before { content: "Thời gian"; }
+    td:nth-child(2)::before { content: "User"; }
+    td:nth-child(3)::before { content: "Câu hỏi"; }
+    td:nth-child(4)::before { content: "Trả lời"; }
+    td:nth-child(5)::before { content: "Total tokens"; }
+    td:nth-child(6)::before { content: "Prompt"; }
+    td:nth-child(7)::before { content: "Completion"; }
+}
