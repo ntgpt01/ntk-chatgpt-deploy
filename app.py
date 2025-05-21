@@ -96,6 +96,19 @@ def usage():
 
     return render_template("usage.html", rows=rows)
 
+from flask import send_file
+
+@app.route("/download")
+def download_log():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    return send_file(
+        "usage_log.csv",
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="usage_log.csv"
+    )
 
 @app.route("/logout")
 def logout():
