@@ -81,12 +81,6 @@ def chat():
 def logout():
     session.clear()
     return redirect(url_for("login"))
-
-if __name__ == "__main__":
-    time.sleep(1)
-    webbrowser.open("http://127.0.0.1:5000")
-    app.run(debug=True, host="0.0.0.0", port=10000)
-
 @app.route("/usage")
 def usage():
     if "username" not in session:
@@ -103,3 +97,9 @@ def usage():
         rows = []
 
     return render_template("usage.html", rows=rows)
+
+if __name__ == "__main__":
+    time.sleep(1)
+    webbrowser.open("http://127.0.0.1:5000")
+    app.run(debug=True, host="0.0.0.0", port=10000)
+
