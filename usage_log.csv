@@ -1,0 +1,28 @@
+timestamp,username,prompt,response,total_tokens,prompt_tokens,completion_tokens
+
+# Nhận phản hồi từ GPT
+response_text = completion.choices[0].message.content.strip()
+
+# 🔢 Lấy thông tin token
+usage = completion.usage
+total_tokens = usage.total_tokens
+prompt_tokens = usage.prompt_tokens
+completion_tokens = usage.completion_tokens
+
+# 🧾 Ghi log ra file CSV
+with open("usage_log.csv", "a", encoding="utf-8", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow([
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # thời gian
+        session["username"],                           # username
+        prompt.replace("\n", "\\n"),                   # prompt gọn dòng
+        response_text.replace("\n", "\\n"),            # response gọn dòng
+        total_tokens,                                  # tổng token
+        prompt_tokens,                                 # token câu hỏi
+        completion_tokens                              # token câu trả lời
+    ])
+2025-05-21 10:33:13,admin,hi,Hello! How can I assist you today?
+2025-05-21 10:44:28,dona95,hi,Hello! How can I assist you today?,28,19,9
+2025-05-21 10:44:31,dona95,hi,Hello! How can I assist you today?,28,19,9
+2025-05-21 10:45:20,Ntk,hi,Hello! How can I assist you today?,28,19,9
+2025-05-21 10:56:14,admin,chào,Chào bạn! Bạn có khỏe không? Có gì mình có thể giúp bạn hôm nay?,39,20,19

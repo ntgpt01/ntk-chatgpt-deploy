@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Ntk ChatGPT{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">🤖 Ntk ChatGPT</div>
+        <div class="nav-user">👤 {{ session['username'] if session.get('username') else 'Khách' }}</div>
+    </div>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <p>&copy; 2025 • GPT Flask Chat • <span style="font-size:0.9em;">Made with ❤️</span></p>
+    </footer>
+</body>
+</html>

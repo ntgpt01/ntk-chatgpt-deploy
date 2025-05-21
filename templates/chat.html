@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Chat GPT{% endblock %}
+
+{% block content %}
+    <h2>Chào {{ username }}!</h2>
+
+    <form method="post">
+        <label>Nhập câu hỏi:</label>
+        <textarea name="prompt" rows="4">{{ prompt or '' }}</textarea><br>
+        <button type="submit">Gửi</button>
+    </form>
+<script>
+    const textarea = document.querySelector("textarea");
+    const form = document.querySelector("form");
+
+    textarea.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault(); // không xuống dòng
+            form.submit();      // gửi form
+        }
+    });
+</script>
+
+    {% if response %}
+        <h3>GPT trả lời:</h3>
+        <div style="white-space: pre-line;">{{ response }}</div>
+    {% endif %}
+{% endblock %}
