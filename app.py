@@ -85,9 +85,11 @@ def usage():
         with open("usage_log.csv", newline="", encoding="utf-8") as f:
             reader = csv.reader(f)
             headers = next(reader)  # Bỏ dòng tiêu đề
+
             for row in reader:
-                if not row or row[0].startswith("#"):
-                    continue  # Bỏ qua dòng comment
+                # Bỏ qua dòng rỗng hoặc dòng không đủ 7 cột dữ liệu
+                if len(row) != 7:
+                    continue
                 rows.append(row)
     except FileNotFoundError:
         rows = []
