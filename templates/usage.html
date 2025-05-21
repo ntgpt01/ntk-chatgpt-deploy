@@ -4,30 +4,35 @@
 {% block content %}
 <h2>Lịch sử sử dụng GPT</h2>
 
-<table>
-    <thead>
-        <tr>
-            <th>Thời gian</th>
-            <th>User</th>
-            <th>Câu hỏi</th>
-            <th>Trả lời</th>
-            <th>Total tokens</th>
-            <th>Prompt</th>
-            <th>Completion</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in rows %}
-        <tr>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td style="white-space: pre-wrap;">{{ row[2] }}</td>
-            <td style="white-space: pre-wrap;">{{ row[3] }}</td>
-            <td>{{ row[4] }}</td>
-            <td>{{ row[5] }}</td>
-            <td>{{ row[6] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<!-- Nút tải CSV -->
+<a href="{{ url_for('download_log') }}" class="btn">📥 Tải file CSV</a>
+
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Thời gian</th>
+                <th>User</th>
+                <th>Câu hỏi</th>
+                <th>Trả lời</th>
+                <th>Total tokens</th>
+                <th>Prompt</th>
+                <th>Completion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td class="wrap-text">{{ row[2] }}</td>
+                <td class="wrap-text">{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
