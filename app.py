@@ -3,7 +3,6 @@ from users import users
 from openai import OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # ✅ Đúng cú pháp mới
 import os
-
 import csv
 from datetime import datetime
 import os
