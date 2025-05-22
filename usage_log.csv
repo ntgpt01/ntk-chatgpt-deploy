@@ -7,7 +7,7 @@ response_text = completion.choices[0].message.content.strip()
 usage = completion.usage
 total_tokens = usage.total_tokens
 prompt_tokens = usage.prompt_tokens
-completion_tokens = usage.completion_tokens
+completion_tokens = usage.completion_tokensày
 
 # Ghi log ra file CSV
 with open("usage_log.csv", "a", encoding="utf-8", newline="") as f:
