@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Thống kê sử dụng{% endblock %}
+
+{% block content %}
+<h2>📊 Thống kê sử dụng theo User</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Tổng tokens</th>
+            <th>Lượt dùng</th>
+            <th>Ước tính chi phí (VNĐ)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user, data in stats.items() %}
+        <tr>
+            <td>{{ user }}</td>
+            <td>{{ data.tokens }}</td>
+            <td>{{ data.count }}</td>
+            <td>{{ "{:,}".format(data.cost) }}đ</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
