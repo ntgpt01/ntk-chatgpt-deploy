@@ -57,6 +57,7 @@ def chat():
 
                     with open("usage_log.csv", "a", encoding="utf-8", newline="") as f:
                         writer = csv.writer(f)
+                       cost_vnd = round(total_tokens / 1000 * 250)
                         writer.writerow([
                             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             username,
@@ -64,8 +65,10 @@ def chat():
                             response_text.replace("\n", "\\n"),
                             total_tokens,
                             prompt_tokens,
-                            completion_tokens
+                            completion_tokens,
+                            cost_vnd  # thêm chi phí
                         ])
+
                 else:
                     response_text = "❌ GPT không phản hồi."
             except Exception as e:
