@@ -1,19 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from users import users
-from openai import OpenAI
 import os
 import csv
 from datetime import datetime
 from collections import defaultdict
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # ✅ Đúng cách
-
 import requests  # dùng để gửi tin nhắn lại cho Telegram
+from openai import OpenAI
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 
 app = Flask(__name__)
 app.secret_key = "supersecret"
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 @app.route("/", methods=["GET", "POST"])
