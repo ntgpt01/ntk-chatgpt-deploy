@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}🧾 Billing hàng tháng{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>🧾 Billing chi tiết theo tháng</h2>
+    <table class="stats-table">
+        <thead>
+            <tr>
+                <th>Tháng</th>
+                <th>👤 User</th>
+                <th>🔁 Lượt dùng</th>
+                <th>💬 Tổng tokens</th>
+                <th>💰 Tổng chi phí (VNĐ)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in billing %}
+            <tr>
+                <td>{{ item.month }}</td>
+                <td><strong>{{ item.username }}</strong></td>
+                <td>{{ item.count }}</td>
+                <td>{{ "{:,}".format(item.tokens) }}</td>
+                <td style="color: green;">{{ "{:,}".format(item.cost) }}đ</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
