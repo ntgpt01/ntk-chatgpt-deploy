@@ -1,29 +1,67 @@
 {% extends "base.html" %}
-
-{% block title %}Chat GPT{% endblock %}
+{% block title %}💬 Ntk ChatGPT{% endblock %}
 
 {% block content %}
-    <h2>Chào {{ username }}!</h2>
+<div class="container">
+    <h2>💬 Trò chuyện với ChatGPT</h2>
 
-    <form method="post">
-        <label>Nhập câu hỏi:</label>
-        <textarea name="prompt" rows="4">{{ prompt or '' }}</textarea><br>
+    <form method="POST">
+        <textarea name="prompt" placeholder="Nhập câu hỏi của bạn..." required>{{ prompt }}</textarea>
         <button type="submit">Gửi</button>
     </form>
-<script>
-    const textarea = document.querySelector("textarea");
-    const form = document.querySelector("form");
 
-    textarea.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault(); // không xuống dòng
-            form.submit();      // gửi form
-        }
-    });
-</script>
+    {% if prompt %}
+    <div class="chat-log">
+        <!-- Người dùng -->
+        <div class="chat-bubble user">
+            <div class="label">👤 Bạn:</div>
+            <div class="message">{{ prompt }}</div>
+        </div>
 
-    {% if response %}
-        <h3>GPT trả lời:</h3>
-        <div style="white-space: pre-line;">{{ response }}</div>
+        <!-- GPT trả lời -->
+        <div class="chat-bubble assistant">
+            <div class="label">🤖 GPT:</div>
+            <div class="message markdown-content">{{ response | safe }}</div>
+
+            <div class="tools">
+                <button class="copy-btn" onclick="copyContent(this)">📋 Copy</button>
+                <button class="edit-btn" onclick="editContent(this)">✏️ Edit</button>
+            </div>
+        </div>
+    </div>
     {% endif %}
+</div>
+
+<!-- Highlight.js + Markdown support -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script>
+    hljs.highlightAll();
+
+    function copyContent(btn) {
+        const content = btn.closest(".chat-bubble").querySelector(".message").innerText;
+        navigator.clipboard.writeText(content);
+        btn.innerText = "✅ Copied";
+        setTimeout(() => btn.innerText = "📋 Copy", 1500);
+    }
+
+    function editContent(btn) {
+        const msgDiv = btn.closest(".chat-bubble").querySelector(".message");
+        const original = msgDiv.innerText;
+        const textarea = document.createElement("textarea");
+        textarea.value = original;
+        textarea.style.width = "100%";
+        textarea.style.minHeight = "100px";
+        msgDiv.innerHTML = "";
+        msgDiv.appendChild(textarea);
+        textarea.focus();
+
+        btn.innerText = "💾 Save";
+        btn.onclick = function () {
+            msgDiv.innerText = textarea.value;
+            btn.innerText = "✏️ Edit";
+            btn.onclick = () => editContent(btn);
+        };
+    }
+</script>
 {% endblock %}

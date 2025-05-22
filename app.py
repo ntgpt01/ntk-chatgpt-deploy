@@ -49,7 +49,11 @@ def chat():
                     ]
                 )
                 if completion.choices:
-                    response_text = completion.choices[0].message.content.strip()
+                    import markdown
+
+                    response_text_raw = completion.choices[0].message.content.strip()
+                    response_text = markdown.markdown(response_text_raw, extensions=["fenced_code", "codehilite"])
+
                     usage = completion.usage
                     total_tokens = usage.total_tokens
                     prompt_tokens = usage.prompt_tokens
