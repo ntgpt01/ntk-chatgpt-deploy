@@ -116,33 +116,24 @@ def logout():
     return redirect(url_for("login"))
 @app.route("/stats")
 def stats():
-    if "username" not in session:
-        return redirect(url_for("login"))
+    from collections import defaultdict
 
-    user_totals = {}  # user: {tokens: X, count: Y}
+    stats_data = defaultdict(lambda: {"count": 0, "total_tokens": 0})
 
     try:
         with open("usage_log.csv", newline="", encoding="utf-8") as f:
             reader = csv.reader(f)
-            headers = next(reader)
+            next(reader)  # Bỏ dòng tiêu đề
             for row in reader:
                 user = row[1]
-                tokens = int(row[4])
-
-                if user not in user_totals:
-                    user_totals[user] = {"tokens": 0, "count": 0}
-
-                user_totals[user]["tokens"] += tokens
-                user_totals[user]["count"] += 1
+                total_tokens = int(row[4]) if row[4].isdigit() else 0
+                stats_data[user]["count"] += 1
+                stats_data[user]["total_tokens"] += total_tokens
     except FileNotFoundError:
         pass
 
-    # Tính chi phí theo VNĐ (giá trung bình 0.01 USD / 1000 tokens ~ 250 VND)
-    for user in user_totals:
-        tks = user_totals[user]["tokens"]
-        user_totals[user]["cost"] = round((tks / 1000) * 250)
+    return render_template("stats.html", stats=stats_data)
 
-    return render_template("stats.html", stats=user_totals)
 
 
 
