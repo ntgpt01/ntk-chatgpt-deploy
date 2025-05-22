@@ -1,14 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from users import users
 import openai
 import csv
 from datetime import datetime
 import os
+from collections import defaultdict
 
 app = Flask(__name__)
-app.secret_key = "supersecret"  # Bắt buộc để dùng session
-
-# Dùng biến môi trường thay vì hardcode API key
+app.secret_key = "supersecret"
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
@@ -18,7 +17,6 @@ def login():
     if request.method == "POST":
         username = request.form.get("username", "")
         password = request.form.get("password", "")
-
         if username and password:
             if username in users and users[username]["password"] == password:
                 session["username"] = username
@@ -27,7 +25,6 @@ def login():
                 error = "Tên đăng nhập hoặc mật khẩu không đúng."
         else:
             error = "Vui lòng nhập đầy đủ thông tin."
-
     return render_template("login.html", error=error)
 
 
@@ -42,67 +39,37 @@ def chat():
 
     if request.method == "POST":
         prompt = request.form["prompt"]
-
         if prompt:
-            completion = openai.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "Bạn là trợ lý thân thiện."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            if prompt:
-    try:
-        completion = openai.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "Bạn là trợ lý thân thiện."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        if completion.choices:
-            response_text = completion.choices[0].message.content.strip()
-            usage = completion.usage
-            total_tokens = usage.total_tokens
-            prompt_tokens = usage.prompt_tokens
-            completion_tokens = usage.completion_tokens
+            try:
+                completion = openai.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "Bạn là trợ lý thân thiện."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                if completion.choices:
+                    response_text = completion.choices[0].message.content.strip()
+                    usage = completion.usage
+                    total_tokens = usage.total_tokens
+                    prompt_tokens = usage.prompt_tokens
+                    completion_tokens = usage.completion_tokens
 
-            with open("usage_log.csv", "a", encoding="utf-8", newline="") as f:
-                writer = csv.writer(f)
-                writer.writerow([
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    username,
-                    prompt.replace("\n", "\\n"),
-                    response_text.replace("\n", "\\n"),
-                    total_tokens,
-                    prompt_tokens,
-                    completion_tokens
-                ])
-        else:
-            response_text = "❌ GPT không phản hồi."
-        except Exception as e:
-            response_text = f"Lỗi khi gọi GPT: {e}"
-
-
-
-            # Lấy token usage
-            usage = completion.usage
-            total_tokens = usage.total_tokens
-            prompt_tokens = usage.prompt_tokens
-            completion_tokens = usage.completion_tokens
-
-            # Ghi log ra CSV
-            with open("usage_log.csv", "a", encoding="utf-8", newline="") as f:
-                writer = csv.writer(f)
-                writer.writerow([
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    username,
-                    prompt.replace("\n", "\\n"),
-                    response_text.replace("\n", "\\n"),
-                    total_tokens,
-                    prompt_tokens,
-                    completion_tokens
-                ])
+                    with open("usage_log.csv", "a", encoding="utf-8", newline="") as f:
+                        writer = csv.writer(f)
+                        writer.writerow([
+                            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            username,
+                            prompt.replace("\n", "\\n"),
+                            response_text.replace("\n", "\\n"),
+                            total_tokens,
+                            prompt_tokens,
+                            completion_tokens
+                        ])
+                else:
+                    response_text = "❌ GPT không phản hồi."
+            except Exception as e:
+                response_text = f"❌ Lỗi khi gọi GPT: {e}"
 
     return render_template("chat.html", username=username, prompt=prompt, response=response_text)
 
@@ -116,19 +83,15 @@ def usage():
     try:
         with open("usage_log.csv", newline="", encoding="utf-8") as f:
             reader = csv.reader(f)
-            headers = next(reader)  # Bỏ dòng tiêu đề
-
+            headers = next(reader)
             for row in reader:
-                # Bỏ qua dòng rỗng hoặc dòng không đủ 7 cột dữ liệu
-                if len(row) != 7:
-                    continue
-                rows.append(row)
+                if len(row) == 7:
+                    rows.append(row)
     except FileNotFoundError:
         rows = []
 
     return render_template("usage.html", rows=rows)
 
-from flask import send_file
 
 @app.route("/download")
 def download_log():
@@ -142,31 +105,38 @@ def download_log():
         download_name="usage_log.csv"
     )
 
+
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("login"))
+
+
 @app.route("/stats")
 def stats():
-    from collections import defaultdict
+    if "username" not in session:
+        return redirect(url_for("login"))
 
     stats_data = defaultdict(lambda: {"count": 0, "total_tokens": 0})
-
     try:
         with open("usage_log.csv", newline="", encoding="utf-8") as f:
             reader = csv.reader(f)
-            next(reader)  # Bỏ dòng tiêu đề
+            next(reader)
             for row in reader:
-                user = row[1]
-                total_tokens = int(row[4]) if row[4].isdigit() else 0
-                stats_data[user]["count"] += 1
-                stats_data[user]["total_tokens"] += total_tokens
+                if len(row) == 7:
+                    user = row[1]
+                    total_tokens = int(row[4]) if row[4].isdigit() else 0
+                    stats_data[user]["count"] += 1
+                    stats_data[user]["total_tokens"] += total_tokens
     except FileNotFoundError:
         pass
 
+    # Thêm chi phí ước tính (250 VNĐ / 1000 tokens)
+    for user in stats_data:
+        tks = stats_data[user]["total_tokens"]
+        stats_data[user]["cost"] = round((tks / 1000) * 250)
+
     return render_template("stats.html", stats=stats_data)
-
-
 
 
 if __name__ == "__main__":
