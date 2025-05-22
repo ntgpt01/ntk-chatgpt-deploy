@@ -10,19 +10,24 @@
         <button type="submit">Gửi</button>
     </form>
 
-    {% if prompt %}
+   {% if prompt %}
     <div class="chat-log">
-        <!-- Người dùng -->
+        <!-- User bubble -->
         <div class="chat-bubble user">
             <div class="label">👤 Bạn:</div>
             <div class="message">{{ prompt }}</div>
         </div>
 
-        <!-- GPT trả lời -->
-        <div class="chat-bubble assistant">
+        <!-- GPT đang gõ... -->
+        <div id="typing-indicator" class="chat-bubble assistant">
+            <div class="label">🤖 GPT:</div>
+            <div class="message"><em>GPT đang gõ...</em></div>
+        </div>
+
+        <!-- GPT trả lời (ẩn khi đang loading, hiện khi xong) -->
+        <div id="gpt-response" class="chat-bubble assistant" style="display: none;">
             <div class="label">🤖 GPT:</div>
             <div class="message markdown-content">{{ response | safe }}</div>
-
             <div class="tools">
                 <button class="copy-btn" onclick="copyContent(this)">📋 Copy</button>
                 <button class="edit-btn" onclick="editContent(this)">✏️ Edit</button>
@@ -30,6 +35,7 @@
         </div>
     </div>
     {% endif %}
+
 </div>
 
 <!-- Highlight.js + Markdown support -->
@@ -64,4 +70,56 @@
         };
     }
 </script>
+<!-- Highlight.js + Markdown content -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script>
+    // Kích hoạt code highlight
+    hljs.highlightAll();
+
+    // Copy nội dung
+    function copyContent(btn) {
+        const content = btn.closest(".chat-bubble").querySelector(".message").innerText;
+        navigator.clipboard.writeText(content);
+        btn.innerText = "✅ Copied";
+        setTimeout(() => btn.innerText = "📋 Copy", 1500);
+    }
+
+    // Cho phép chỉnh sửa nội dung GPT
+    function editContent(btn) {
+        const msgDiv = btn.closest(".chat-bubble").querySelector(".message");
+        const original = msgDiv.innerText;
+        const textarea = document.createElement("textarea");
+        textarea.value = original;
+        textarea.style.width = "100%";
+        textarea.style.minHeight = "120px";
+        msgDiv.innerHTML = "";
+        msgDiv.appendChild(textarea);
+        textarea.focus();
+
+        btn.innerText = "💾 Save";
+        btn.onclick = function () {
+            msgDiv.innerText = textarea.value;
+            btn.innerText = "✏️ Edit";
+            btn.onclick = () => editContent(btn);
+        };
+    }
+</script>
+<script>
+    // Hiển thị hiệu ứng "GPT đang gõ..." khoảng 1.5s
+    window.addEventListener("DOMContentLoaded", () => {
+        const typing = document.getElementById("typing-indicator");
+        const response = document.getElementById("gpt-response");
+
+        if (typing && response) {
+            setTimeout(() => {
+                typing.style.display = "none";
+                response.style.display = "block";
+                hljs.highlightAll();
+            }, 1500); // thời gian "đang gõ"
+        }
+    });
+</script>
+
+
 {% endblock %}
