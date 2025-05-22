@@ -5,7 +5,7 @@ import csv
 from datetime import datetime
 import os
 from collections import defaultdict
-
+import markdown2
 app = Flask(__name__)
 app.secret_key = "supersecret"
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -49,10 +49,12 @@ def chat():
                     ]
                 )
                 if completion.choices:
-                    import markdown
+                    
 
                     response_text_raw = completion.choices[0].message.content.strip()
-                    response_text = markdown.markdown(response_text_raw, extensions=["fenced_code", "codehilite"])
+                    response_text = markdown2.markdown(response_text_raw, extras=["fenced-code-blocks"])
+
+
 
                     usage = completion.usage
                     total_tokens = usage.total_tokens

@@ -27,7 +27,8 @@
         <!-- GPT trả lời (ẩn khi đang loading, hiện khi xong) -->
         <div id="gpt-response" class="chat-bubble assistant" style="display: none;">
             <div class="label">🤖 GPT:</div>
-            <div class="message markdown-content">{{ response | safe }}</div>
+            <div class="message">{{ response }}</div>
+
             <div class="tools">
                 <button class="copy-btn" onclick="copyContent(this)">📋 Copy</button>
                 <button class="edit-btn" onclick="editContent(this)">✏️ Edit</button>
