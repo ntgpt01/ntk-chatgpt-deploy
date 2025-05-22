@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from users import users
-import openai
+from openai import OpenAI
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # ✅ Đúng cú pháp mới
+
 import csv
 from datetime import datetime
 import os
@@ -159,7 +161,7 @@ def billing():
 
     try:
         with open("usage_log.csv", newline="", encoding="utf-8") as f:
-            reader = csv.reader(f)
+            reader = csv.reader(f) 
             headers = next(reader)
             for row in reader:
                 if len(row) < 8:
@@ -192,6 +194,7 @@ def billing():
 @app.route("/telegram", methods=["POST"])
 def telegram_webhook():
     data = request.get_json()
+    print("📩 Nhận từ Telegram:", data)  # THÊM DÒNG NÀY
 
     # Kiểm tra tin nhắn Telegram gửi đến
     if "message" in data:
@@ -200,13 +203,14 @@ def telegram_webhook():
 
         # Gọi GPT trả lời
         try:
-            completion = openai.ChatCompletion.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "Bạn là trợ lý thân thiện."},
-                    {"role": "user", "content": text}
-                ]
+            completion = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Bạn là trợ lý thân thiện."},
+                {"role": "user", "content": prompt}  # hoặc `text` nếu dùng với Telegram
+            ]
             )
+
             reply = completion.choices[0].message.content.strip()
         except Exception as e:
             reply = f"❌ Lỗi GPT: {e}"
