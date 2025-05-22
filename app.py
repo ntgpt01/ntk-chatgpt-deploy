@@ -143,6 +143,44 @@ def stats():
         stats_data[user]["cost"] = round((tks / 1000) * 250)
 
     return render_template("stats.html", stats=stats_data, chart_data=json.dumps(stats_data))
+@app.route("/billing")
+def billing():
+    from collections import defaultdict
+
+    billing_data = defaultdict(lambda: {"count": 0, "total_tokens": 0, "total_cost": 0})
+
+    try:
+        with open("usage_log.csv", newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            headers = next(reader)
+            for row in reader:
+                if len(row) < 8:
+                    continue  # bỏ dòng thiếu dữ liệu
+                timestamp, username, *_ , total_tokens, _, _, cost_vnd = row
+                month = timestamp[:7]  # YYYY-MM
+
+                key = (username, month)
+                billing_data[key]["count"] += 1
+                billing_data[key]["total_tokens"] += int(total_tokens)
+                billing_data[key]["total_cost"] += int(cost_vnd)
+    except FileNotFoundError:
+        pass
+
+    # Chuyển thành danh sách để render dễ
+    result = []
+    for (user, month), data in billing_data.items():
+        result.append({
+            "username": user,
+            "month": month,
+            "count": data["count"],
+            "tokens": data["total_tokens"],
+            "cost": data["total_cost"]
+        })
+
+    # Sắp xếp theo tháng mới nhất
+    result.sort(key=lambda x: (x["month"], x["username"]), reverse=True)
+
+    return render_template("billing.html", billing=result)
 
 
 
