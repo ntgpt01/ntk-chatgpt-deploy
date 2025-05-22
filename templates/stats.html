@@ -5,6 +5,8 @@
 <div class="container">
     <h2>📊 Thống kê sử dụng theo người dùng</h2>
 
+    <canvas id="tokenChart" style="max-height: 300px;"></canvas>
+
     <table class="stats-table">
         <thead>
             <tr>
@@ -26,4 +28,33 @@
         </tbody>
     </table>
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const rawData = {{ chart_data | safe }};
+    const labels = Object.keys(rawData);
+    const data = Object.values(rawData).map(d => d.total_tokens);
+
+    const ctx = document.getElementById('tokenChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'doughnut', // có thể đổi thành 'bar' nếu muốn
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Tổng tokens theo user',
+                data: data,
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#8BC34A', '#00BCD4', '#9C27B0']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

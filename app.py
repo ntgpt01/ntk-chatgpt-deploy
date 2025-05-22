@@ -114,6 +114,9 @@ def logout():
 
 @app.route("/stats")
 def stats():
+    import json
+# thêm vào cuối route
+
     if "username" not in session:
         return redirect(url_for("login"))
 
@@ -136,7 +139,8 @@ def stats():
         tks = stats_data[user]["total_tokens"]
         stats_data[user]["cost"] = round((tks / 1000) * 250)
 
-    return render_template("stats.html", stats=stats_data)
+    return render_template("stats.html", stats=stats_data, chart_data=json.dumps(stats_data))
+
 
 
 if __name__ == "__main__":
