@@ -206,7 +206,7 @@ def telegram_webhook():
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": "Bạn là trợ lý thân thiện."},
-                {"role": "user", "content": prompt}  # hoặc `text` nếu dùng với Telegram
+                {"role": "user", "content": text}  # hoặc `text` nếu dùng với Telegram
             ]
             )
 
