@@ -5,7 +5,9 @@ import csv
 from datetime import datetime
 import os
 from collections import defaultdict
-import markdown2
+import requests  # dùng để gửi tin nhắn lại cho Telegram
+
+
 app = Flask(__name__)
 app.secret_key = "supersecret"
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -51,8 +53,8 @@ def chat():
                 if completion.choices:
                     
 
-                    response_text_raw = completion.choices[0].message.content.strip()
-                    response_text = markdown2.markdown(response_text_raw, extras=["fenced-code-blocks"])
+                    response_text = completion.choices[0].message.content.strip()
+
 
 
 
@@ -187,6 +189,36 @@ def billing():
     result.sort(key=lambda x: (x["month"], x["username"]), reverse=True)
 
     return render_template("billing.html", billing=result)
+@app.route("/telegram", methods=["POST"])
+def telegram_webhook():
+    data = request.get_json()
+
+    # Kiểm tra tin nhắn Telegram gửi đến
+    if "message" in data:
+        chat_id = data["message"]["chat"]["id"]
+        text = data["message"].get("text", "")
+
+        # Gọi GPT trả lời
+        try:
+            completion = openai.ChatCompletion.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "Bạn là trợ lý thân thiện."},
+                    {"role": "user", "content": text}
+                ]
+            )
+            reply = completion.choices[0].message.content.strip()
+        except Exception as e:
+            reply = f"❌ Lỗi GPT: {e}"
+
+        # Gửi lại kết quả về Telegram
+        telegram_api_url = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage"
+        requests.post(telegram_api_url, json={
+            "chat_id": chat_id,
+            "text": reply
+        })
+
+    return "ok"
 
 
 
