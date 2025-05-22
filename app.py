@@ -80,8 +80,8 @@ def chat():
                 ])
         else:
             response_text = "❌ GPT không phản hồi."
-    except Exception as e:
-        response_text = f"Lỗi khi gọi GPT: {e}"
+        except Exception as e:
+            response_text = f"Lỗi khi gọi GPT: {e}"
 
 
 
