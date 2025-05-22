@@ -51,7 +51,39 @@ def chat():
                     {"role": "user", "content": prompt}
                 ]
             )
+            if prompt:
+    try:
+        completion = openai.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Bạn là trợ lý thân thiện."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        if completion.choices:
             response_text = completion.choices[0].message.content.strip()
+            usage = completion.usage
+            total_tokens = usage.total_tokens
+            prompt_tokens = usage.prompt_tokens
+            completion_tokens = usage.completion_tokens
+
+            with open("usage_log.csv", "a", encoding="utf-8", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow([
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    username,
+                    prompt.replace("\n", "\\n"),
+                    response_text.replace("\n", "\\n"),
+                    total_tokens,
+                    prompt_tokens,
+                    completion_tokens
+                ])
+        else:
+            response_text = "❌ GPT không phản hồi."
+    except Exception as e:
+        response_text = f"Lỗi khi gọi GPT: {e}"
+
+
 
             # Lấy token usage
             usage = completion.usage
