@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from users import users
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import csv
 from datetime import datetime
 from collections import defaultdict
@@ -250,7 +252,7 @@ def telegram_webhook():
                 reply = f"❌ Lỗi GPT: {e}"
 
         # Gửi về Telegram
-        telegram_api_url = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage"
+        telegram_api_url = f"https://api.telegram.org/bot7717986047:AAEKEUhdKkDZkkRVLhc1Z_Ij2KMVLPvTls0/sendMessage"
         requests.post(telegram_api_url, json={
             "chat_id": chat_id,
             "text": reply,
