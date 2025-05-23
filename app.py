@@ -220,38 +220,14 @@ def billing():
 @app.route("/telegram", methods=["POST"])
 def telegram_webhook():
     data = request.get_json()
-    print("📩 Nhận từ Telegram:", data)  # THÊM DÒNG NÀY
+    print("📩 Nhận từ Telegram:", data)
 
-    # Kiểm tra tin nhắn Telegram gửi đến
     if "message" in data:
         chat_id = data["message"]["chat"]["id"]
         text = data["message"].get("text", "")
 
-        # Gọi GPT trả lời
-        try:
-            completion = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "Bạn là trợ lý thân thiện."},
-                {"role": "user", "content": text}  # hoặc `text` nếu dùng với Telegram
-            ]
-            )
-
-            reply = completion.choices[0].message.content.strip()
-        except Exception as e:
-            reply = f"❌ Lỗi GPT: {e}"
-
-        # Gửi lại kết quả về Telegram
-        telegram_api_url = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage"
-        requests.post(telegram_api_url, json={
-            "chat_id": chat_id,
-            "text": reply,
-            "parse_mode": "MarkdownV2"
-        })
-
-        # Kiểm tra nếu người dùng gửi lệnh "so sánh"
+        # Kiểm tra nếu là lệnh so sánh
         if text.lower().startswith("so sánh"):
-            # Ví dụ dữ liệu mẫu
             table_data = [
                 ["Cách làm", "Công cụ", "Ưu điểm"],
                 ["Webview App", "Flutter, React Native", "Dễ làm, chạy web"],
@@ -260,19 +236,28 @@ def telegram_webhook():
             ]
             reply = format_table_for_telegram(table_data)
         else:
-            # Gọi GPT như cũ
-            completion = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "Bạn là trợ lý thân thiện."},
-                    {"role": "user", "content": text}
-                ]
-            )
-            reply = completion.choices[0].message.content.strip()
+            # Gọi GPT như bình thường
+            try:
+                completion = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "Bạn là trợ lý thân thiện."},
+                        {"role": "user", "content": text}
+                    ]
+                )
+                reply = completion.choices[0].message.content.strip()
+            except Exception as e:
+                reply = f"❌ Lỗi GPT: {e}"
 
+        # Gửi về Telegram
+        telegram_api_url = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage"
+        requests.post(telegram_api_url, json={
+            "chat_id": chat_id,
+            "text": reply,
+            "parse_mode": "MarkdownV2"
+        })
 
-    return "ok"
-
+    return "ok", 200
 
 
 if __name__ == "__main__":
