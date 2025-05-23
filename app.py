@@ -220,7 +220,6 @@ def billing():
 
     return render_template("billing.html", billing=result)
 @app.route("/telegram", methods=["POST"])
-print("✅ Webhook HIT")
 def telegram_webhook():
     data = request.get_json()
     print("📩 Nhận từ Telegram:", data)
