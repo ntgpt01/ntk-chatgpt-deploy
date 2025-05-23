@@ -221,6 +221,7 @@ def billing():
     return render_template("billing.html", billing=result)
 @app.route("/telegram", methods=["POST"])
 def telegram_webhook():
+    print("✅ Webhook HIT")
     data = request.get_json()
     print("📩 Nhận từ Telegram:", data)
 
@@ -228,7 +229,7 @@ def telegram_webhook():
         chat_id = data["message"]["chat"]["id"]
         text = data["message"].get("text", "")
 
-        # Kiểm tra nếu là lệnh so sánh
+        # Nếu tin nhắn bắt đầu bằng "so sánh"
         if text.lower().startswith("so sánh"):
             table_data = [
                 ["Cách làm", "Công cụ", "Ưu điểm"],
@@ -238,7 +239,6 @@ def telegram_webhook():
             ]
             reply = format_table_for_telegram(table_data)
         else:
-            # Gọi GPT như bình thường
             try:
                 completion = client.chat.completions.create(
                     model="gpt-4o",
@@ -251,8 +251,8 @@ def telegram_webhook():
             except Exception as e:
                 reply = f"❌ Lỗi GPT: {e}"
 
-        # Gửi về Telegram
-        telegram_api_url = f"https://api.telegram.org/bot7717986047:AAEKEUhdKkDZkkRVLhc1Z_Ij2KMVLPvTls0/sendMessage"
+        # Gửi phản hồi về Telegram
+        telegram_api_url = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage"
         requests.post(telegram_api_url, json={
             "chat_id": chat_id,
             "text": reply,
@@ -260,6 +260,7 @@ def telegram_webhook():
         })
 
     return "ok", 200
+
 
 
 if __name__ == "__main__":
