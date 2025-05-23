@@ -73,7 +73,7 @@ def chat():
         prompt = request.form["prompt"]
         if prompt:
             try:
-                completion = openai.chat.completions.create(
+                completion = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
                         {"role": "system", "content": "Bạn là trợ lý thân thiện."},
