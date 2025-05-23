@@ -8,6 +8,33 @@ import requests  # dùng để gửi tin nhắn lại cho Telegram
 from openai import OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+import re
+
+def escape_markdown_v2(text):
+    # Escape các ký tự đặc biệt trong MarkdownV2
+    return re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', text)
+
+def format_table_for_telegram(data):
+    """
+    Chuyển list dữ liệu bảng thành chuỗi MarkdownV2 hiển thị đẹp trong Telegram.
+    """
+    if not data:
+        return "❌ Bảng trống."
+
+    # Escape và tính độ rộng mỗi cột
+    escaped_data = [[escape_markdown_v2(str(cell)) for cell in row] for row in data]
+    col_widths = [max(len(row[i]) for row in escaped_data) for i in range(len(data[0]))]
+
+    # Tạo dòng bảng
+    lines = []
+    for i, row in enumerate(escaped_data):
+        padded = [row[j].ljust(col_widths[j]) for j in range(len(row))]
+        line = " | ".join(padded)
+        lines.append(line)
+        if i == 0:
+            lines.append("-" * len(line))  # thêm dòng kẻ sau tiêu đề
+
+    return "```\n" + "\n".join(lines) + "\n```"
 
 
 app = Flask(__name__)
@@ -218,8 +245,31 @@ def telegram_webhook():
         telegram_api_url = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage"
         requests.post(telegram_api_url, json={
             "chat_id": chat_id,
-            "text": reply
+            "text": reply,
+            "parse_mode": "MarkdownV2"
         })
+
+        # Kiểm tra nếu người dùng gửi lệnh "so sánh"
+        if text.lower().startswith("so sánh"):
+            # Ví dụ dữ liệu mẫu
+            table_data = [
+                ["Cách làm", "Công cụ", "Ưu điểm"],
+                ["Webview App", "Flutter, React Native", "Dễ làm, chạy web"],
+                ["Native App + Flask", "Swift/Kotlin", "Tối ưu trải nghiệm"],
+                ["No-code App", "Adalo, Glide", "Nhanh, không cần code"]
+            ]
+            reply = format_table_for_telegram(table_data)
+        else:
+            # Gọi GPT như cũ
+            completion = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "Bạn là trợ lý thân thiện."},
+                    {"role": "user", "content": text}
+                ]
+            )
+            reply = completion.choices[0].message.content.strip()
+
 
     return "ok"
 
