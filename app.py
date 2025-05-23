@@ -229,34 +229,12 @@ def telegram_webhook():
         chat_id = data["message"]["chat"]["id"]
         text = data["message"].get("text", "")
 
-        # Nếu tin nhắn bắt đầu bằng "so sánh"
-        if text.lower().startswith("so sánh"):
-            table_data = [
-                ["Cách làm", "Công cụ", "Ưu điểm"],
-                ["Webview App", "Flutter, React Native", "Dễ làm, chạy web"],
-                ["Native App + Flask", "Swift/Kotlin", "Tối ưu trải nghiệm"],
-                ["No-code App", "Adalo, Glide", "Nhanh, không cần code"]
-            ]
-            reply = format_table_for_telegram(table_data)
-        else:
-            try:
-                completion = client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[
-                        {"role": "system", "content": "Bạn là trợ lý thân thiện."},
-                        {"role": "user", "content": text}
-                    ]
-                )
-                reply = completion.choices[0].message.content.strip()
-            except Exception as e:
-                reply = f"❌ Lỗi GPT: {e}"
+        reply = "📌 Tôi đã nhận: " + text  # tạm thời test phản hồi đơn giản
 
-        # Gửi phản hồi về Telegram
         telegram_api_url = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}/sendMessage"
         requests.post(telegram_api_url, json={
             "chat_id": chat_id,
-            "text": reply,
-            "parse_mode": "MarkdownV2"
+            "text": reply
         })
 
     return "ok", 200
